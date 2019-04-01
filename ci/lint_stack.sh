@@ -22,7 +22,7 @@ print_list() {
 
 # Get existing stack names from local files
 get_local_stack_names() {
-  stack_names=( $(grep -r -w -h 'stack_name:' ${PATH} | cut -d':' -f2 | awk '{$1=$1};1') )
+  stack_names=( $(/bin/grep -r -w -h 'stack_name:' ${PATH} | /usr/bin/cut -d':' -f2 | /usr/bin/awk '{$1=$1};1') )
   # echo "${stack_names[@]}"
 }
 
@@ -36,7 +36,7 @@ get_cf_stack_names() {
 
 # Get the newly added stack_name
 get_new_stack_name() {
-  diff_output=$(/usr/bin/git diff HEAD~1 | grep '+stack_name:' || true)
+  diff_output=$(/usr/bin/git diff HEAD~1 | /bin/grep '+stack_name:' || true)
   new_stack_name=${diff_output:13}
   # echo "${new_stack_name}"
 }
