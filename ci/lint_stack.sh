@@ -66,7 +66,6 @@ verify_name_constraint() {
 
 
 # main
-
 cmd(){ echo `basename $0`; }
 usage() {                                      # Function: Print a help message.
 echo "\
@@ -87,8 +86,7 @@ fi
 
 while getopts ":rl:" options; do
   case "${options}" in
-    r) echo "R option"
-       get_new_stack_name
+    r) get_new_stack_name
        if [ ! -z "${new_stack_name}" ]; then
          verify_name_constraint
          get_cf_stack_names
