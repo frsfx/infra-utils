@@ -13,6 +13,7 @@ if(-not($JcServiceApiKey)) { Throw "-JcServiceApiKey is required" }
 $env:Path += ";C:\ProgramData\chocolatey\lib\jq\tools"
 
 Install-Module -Name JumpCloud -Force
+Import-Module -Name JumpCloud -Force
 Connect-JCOnline $JcServiceApiKey -force
 $JcSystemId = Get-Content $env:ProgramFiles\JumpCloud\Plugins\Contrib\jcagent.conf | jq -r '.systemKey'
 Add-JCSystemGroupMember -SystemID $JcSystemId -ByID -GroupID $JcSystemsGroupId
