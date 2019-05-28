@@ -16,14 +16,13 @@ print_list() {
   list=("$@")
   for item in "${list[@]}"
   do
-    echo "${item}"
+    printf "${item}\n"
   done
 }
 
 # Get existing stack names from local files
 get_local_stack_names() {
   stack_names=( $(/bin/grep -r -w -h 'stack_name:' ${PATH} | /usr/bin/cut -d':' -f2 | /usr/bin/awk '{$1=$1};1') )
-  # echo "${stack_names[@]}"
 }
 
 # Get existing stack names from cloudformation
@@ -31,14 +30,12 @@ get_cf_stack_names() {
   stack_names=( $(aws cloudformation list-stacks \
       --query 'StackSummaries[?starts_with(StackStatus, `DELETE_COMPLETE`) != `true`].StackName' \
       --output text) )
-  # echo "${stack_names[@]}"
 }
 
 # Get the newly added stack_name
 get_new_stack_name() {
   diff_output=$(/usr/bin/git diff HEAD~1 | /bin/grep '+stack_name:' || true)
   new_stack_name=${diff_output:13}
-  # echo "${new_stack_name}"
 }
 
 # Verify new stack_name is unique
@@ -46,8 +43,8 @@ verify_unique() {
   for stack_name in "${stack_names[@]}"
   do
     if [ "${new_stack_name}" = "${stack_name}" ]; then
-      echo "ERROR: new stack_name \"${new_stack_name}\" is not unique"
-      echo "Existing stacks names:"
+      printf "\e[1;31mERROR: new stack_name \"${new_stack_name}\" is not unique\e[0m\n"
+      printf "Existing stacks names:\n"
       print_list "${stack_names[@]}"
       exit 1
      fi
@@ -57,9 +54,9 @@ verify_unique() {
 # Verify that new stack_name contains valid chars and is a certain length
 verify_name_constraint() {
   if [[ ! $new_stack_name =~ $STACK_NAME_CONSTRAINT ]]; then
-    echo "ERROR: Stack name \"${new_stack_name}\" contains invalid characters"
-    echo "A stack name can contain only alphanumeric characters (case sensitive) and hyphens."
-    echo "It must start with an alphabetic character and cannot be longer than 128 characters."
+    printf "\e[1;31mERROR: Stack name \"${new_stack_name}\" contains invalid characters. "
+    printf "A stack name can contain only alphanumeric characters (case sensitive) and hyphens. "
+    printf "It must start with an alphabetic character and cannot be longer than 128 characters.\e[0m\n"
     exit 1
   fi
 }
@@ -105,7 +102,7 @@ while getopts ":rl:" options; do
        fi
       ;;
     :)                            # If expected argument omitted:
-      echo "Error: -${OPTARG} requires an argument."
+      printf "\e[1;31mError: -${OPTARG} requires an argument.\e[0m\n"
       exit_abnormal
       ;;
     *)                            # If unknown (any other) option:
