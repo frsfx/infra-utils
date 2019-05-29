@@ -13,7 +13,7 @@ STACK_NAME_CONSTRAINT="^[a-zA-Z][a-zA-Z0-9.-][^_~\`/{},.\"()\"+=\\<>?:;|!@#$%^&*
 
 # util to print a generic list
 print_list() {
-  list=("$@")
+  local list=("$@")
   for item in "${list[@]}"
   do
     echo "${item}"
@@ -36,7 +36,7 @@ get_cf_stack_names() {
 
 # Get the newly added stack_name
 get_new_stack_name() {
-  diff_output=$(/usr/bin/git diff HEAD~1 | /bin/grep '+stack_name:' || true)
+  local diff_output=$(/usr/bin/git diff HEAD~1 | /bin/grep '+stack_name:' || true)
   new_stack_name=${diff_output:13}
   # echo "${new_stack_name}"
 }
@@ -64,6 +64,26 @@ verify_name_constraint() {
   fi
 }
 
+# Get the list of new or changed files
+get_diff_files() {
+  local diff_output=$(/usr/bin/git diff --name-only HEAD~1 || true)
+  files=($diff_output)
+}
+
+# Verify sceptre files are valid
+verify_sceptre_files() {
+  for file in "${files[@]}"
+  do
+    # sceptre files are in the config folder
+    if [[ "$file" =~ "config" ]]; then
+      if [[ $file != *.yaml && $file != *.j2 && $file != *.json ]]; then
+        printf "\e[1;31mERROR: \"${file}\" is an invalid template file.  "
+        printf "A valid file must contain either a json, yaml or j2 extension\e[0m"
+        exit 1
+      fi
+    fi
+  done
+}
 
 # main
 cmd(){ echo `basename $0`; }
@@ -94,6 +114,10 @@ while getopts ":rl:" options; do
        fi
       ;;
     l) PATH=${OPTARG}
+       # verify sceptre files
+       get_diff_files
+       verify_sceptre_files
+       # verify stack names
        get_new_stack_name
        if [ ! -z "${new_stack_name}" ]; then
          verify_name_constraint
