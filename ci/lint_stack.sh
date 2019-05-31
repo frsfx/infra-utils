@@ -75,7 +75,7 @@ verify_sceptre_files() {
     if [[ "$file" =~ "config" ]]; then
       if [[ $file != *.yaml && $file != *.j2 && $file != *.json ]]; then
         printf "\e[1;31mERROR: \"${file}\" is an invalid template file.  "
-        printf "A valid file must contain either a json, yaml or j2 extension\e[0m"
+        printf "A valid file must contain either a json, yaml or j2 extension\e[0m\n"
         exit 1
       fi
     fi
