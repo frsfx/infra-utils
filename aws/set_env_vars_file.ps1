@@ -33,7 +33,8 @@ Function SetEnvVars() {
 
   $DEPARTMENT = ExtractTagValue -KeyName Department
   $PROJECT = ExtractTagValue -KeyName Project
-  $OWNER_EMAIL = ExtractTagValue -KeyName OwnerEmail
+  $PROVISIONING_PRINCIPAL_ARN = ExtractTagValue -KeyName 'aws:servicecatalog:provisioningPrincipalArn'
+  $OWNER_EMAIL = $PROVISIONING_PRINCIPAL_ARN -replace '.*\/'
 
   $FileString = @"
     `$env:AWS_REGION` = "$AWS_REGION"
