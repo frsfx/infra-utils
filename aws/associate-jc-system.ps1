@@ -1,7 +1,7 @@
 # Associate a Windows EC2 instance with a jumpcloud user
 # Usage:
 #   associate-jc-system.ps1 -JcServiceApiKey XXXXXXXXXX \
-#           -JcSystemsGroupId XXXXXXXXX -OwnerEmail joe.smith@sagebase.org
+#           -JcSystemsGroupId XXXXXXXXX -SynapseUserId 1234567
 #
 # Note: assumes jq is installed thru choco, https://chocolatey.org/packages/jq
 
@@ -9,11 +9,11 @@
 Param(
     [String]$JcSystemsGroupId = $env:JC_SYSTEMS_GROUP_ID,
     [String]$JcServiceApiKey = $env:JC_SERVICE_API_KEY,
-    [String]$OwnerEmail = $env:OWNER_EMAIL
+    [String]$SynapseUserId = $env:SYNAPSE_USER_ID
 )
 if(-not($JcSystemsGroupId)) { Throw "-JcSystemsGroupId is required" }
 if(-not($JcServiceApiKey)) { Throw "-JcServiceApiKey is required" }
-if(-not($OwnerEmail)) { Throw "-OwnerEmail is required" }
+if(-not($SynapseUserId)) { Throw "-SynapseUserId is required" }
 
 # JC powershell module, https://github.com/TheJumpCloud/support/wiki
 Function InstallPowershellModule() {
@@ -32,21 +32,16 @@ Function AssociateJcSystem() {
   Add-JCSystemGroupMember -SystemID $JcSystemId -ByID -GroupID $JcSystemsGroupId
 }
 
-# Get the User ID that match an email address from a list of JC users
-# synapse.org emails are stored in a JC custom user attribute
+# Get the JC User ID that maps to a Synapse ID
+# Synapse IDs are stored in a JC custom user attribute
 Function Get-JCUserId {
-    Param($Users, $Email)
-    if ($Email.Contains("synapse.org")) {
-        foreach ($User in $Users) {
-            foreach ($Attribute in $User.attributes) {
-                if ($Attribute.name -match "SynapseEmail" -and $Attribute.value -match $Email) {
-                    $UserId = $User._id
-                }
-            }
-        }
-    } else {
-        foreach ($User in $Users) {
-            if ($User.email -eq $Email) {
+    # Users is a list of JC users
+    # Key is the JC custom user attribute name
+    # Value is the JC custom attribute value to match
+    Param($Users, $Key, $Value)
+    foreach ($User in $Users) {
+        foreach ($attribute in $User.attributes) {
+            if ($attribute.name -match $Key -and $attribute.value -match $Value) {
                 $UserId = $User._id
             }
         }
@@ -59,7 +54,7 @@ Function UserAccessSystem() {
   $JcSystemId = Get-Content $env:ProgramFiles\JumpCloud\Plugins\Contrib\jcagent.conf | jq -r '.systemKey'
   Write-Host "JcSystemId = $JcSystemId"
   $JcUsers = (Get-JCUser -returnProperties email,attributes)
-  $JcUserId = (Get-JCUserId -Users $JcUsers -Email $OwnerEmail)
+  $JcUserId = (Get-JCUserId -Users $JcUsers -Key "SynapseUserId" -Value $SynapseUserId)
   Write-Host "JcUserId = $JcUserId"
   if (-not ([string]::IsNullOrEmpty($JcUserId))) {
       Add-JCSystemUser -SystemID $JcSystemId -UserId $JcUserId -Administrator $True
