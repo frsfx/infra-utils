@@ -1,5 +1,5 @@
 #!/bin/bash
-CONFIGURATION='{"link":{"host":"gov01.fedcloud.tenable.com","port":443,"key":"'${STACK_ARMOR_KEY}'","name":"agent-name","groups":["agent-group"]}}'
+CONFIGURATION='{"link":{"host":"gov01.fedcloud.tenable.com","port":443,"key":"'${STACK_ARMOR_KEY}'","name":"agent-name","groups":["Sage-Linux"]}}'
 SERVER='gov01.fedcloud.tenable.com:443'
 RHPREFIX=el
 FCVER=38
@@ -377,7 +377,7 @@ then
 fi
 
 echo "Applying auto-configuration."
-echo $CONFIGURATION > /opt/nessus_agent/var/nessus/config.json
+echo "${CONFIGURATION//agent-name/$(hostname)}" > /opt/nessus_agent/var/nessus/config.json
 
 echo "Starting Nessus Agent."
 output=$($startcmd 2>&1)
