@@ -1,5 +1,5 @@
 #!/bin/bash
-CONFIGURATION='{"link":{"host":"gov01.fedcloud.tenable.com","port":443,"key":"'$1'","name":"agent-name","groups":["agent-group"]}}'
+CONFIGURATION='{"link":{"host":"gov01.fedcloud.tenable.com","port":443,"key":"'${STACK_ARMOR_KEY}'","name":"agent-name","groups":["agent-group"]}}'
 SERVER='gov01.fedcloud.tenable.com:443'
 RHPREFIX=el
 FCVER=38
@@ -355,7 +355,7 @@ then
 fi
 
 echo "Downloading Nessus Agent install package for $version."
-response=$(curl -H "X-Key: $1" -s -w "%{http_code}" https://$SERVER/install/agent/installer/$file -o $file)
+response=$(curl -H "X-Key: ${STACK_ARMOR_KEY}" -s -w "%{http_code}" https://$SERVER/install/agent/installer/$file -o $file)
 
 http_code=$(tail -n1 <<< "$response")
 if [[ $http_code -ne 200 ]]
