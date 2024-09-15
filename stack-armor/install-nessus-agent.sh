@@ -1,5 +1,5 @@
 #!/bin/bash
-CONFIGURATION='{"link":{"host":"gov01.fedcloud.tenable.com","port":443,"key":"${STACK_ARMOR_KEY}","name":"agent-name","groups":["Sage-Linux"]}}'
+CONFIGURATION='{"link":{"host":"gov01.fedcloud.tenable.com","port":443,"key":"'${STACK_ARMOR_KEY}'","name":"agent-name","groups":["Sage-Linux"]}}'
 SERVER='gov01.fedcloud.tenable.com:443'
 RHPREFIX=el
 FCVER=38
