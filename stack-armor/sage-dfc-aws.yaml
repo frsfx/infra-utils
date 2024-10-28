@@ -112,10 +112,10 @@ Parameters:
     AllowedValues:
       - 'true'
       - 'false'
-    Description: (Optional) Whether MDC setup is management account onboarding
+    Description: (Optional) Whether MDC setup is management account onboarding 
   OidcAccountId:
     Type: String
-    Default: ''
+    Default: '' 
     Description: (Optional) If MDC setup is management account, this is the management
       account id
   CiemOidcRoleName:
